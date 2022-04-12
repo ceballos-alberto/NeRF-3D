@@ -30,6 +30,6 @@ This project uses multiple external libraries and packages, please follow the in
 
 5. For convenience you can execute all the steps described above using the installation script that has been provided
 
-`chmod +x install.sh`
+    `chmod +x install.sh`
 
-`./install.sh`
+    `./install.sh`
