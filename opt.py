@@ -155,7 +155,7 @@ def get_opts():
     parser.add_argument('--warmup_multiplier',
                         type=float,
                         default=1.0,
-                        help='lr is multiplied by this factor after --warmup_epochs)
+                        help='lr is multiplied by this factor after --warmup_epochs')
 
     # Warmup epochs (sgd or adam only) #
     parser.add_argument('--warmup_epochs',
