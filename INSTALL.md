@@ -42,4 +42,6 @@ All the libraries and packages that we have previously installed are inside a co
 
 3. Remove repository files >>
 
+    `cd ..`
+
     `rm -r NeRF-3D`
