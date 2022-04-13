@@ -1,6 +1,6 @@
 # Installation Instructions
 
-This project uses multiple external libraries and packages, please follow the installation instructions precisely to avoid future problems:
+This project uses multiple external libraries and packages, please follow the installation instructions precisely to avoid future problems (Note that Anaconda is required to install the project dependencies):
 
 1. Create empty conda environment with Python 3.9 >>
 
@@ -27,3 +27,19 @@ This project uses multiple external libraries and packages, please follow the in
 4. Install other project dependencies >>
 
     `pip install -r requirements.txt`
+
+# Uninstallation Instructions
+
+All the libraries and packages that we have previously installed are inside a conda environment, please follow the uninstallation instructions precisely to avoid future problems:
+
+1. Deactivate current conda environment (skip this step if the current environment is base) >>
+
+    `conda deactivate`
+
+2. Remove the environment >>
+
+    `conda env remove -n NeRF-3D`
+
+3. Remove repository files >>
+
+    `rm -r NeRF-3D`
