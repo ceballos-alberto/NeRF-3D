@@ -119,7 +119,6 @@ def read_cameras_binary(path_to_model_file):
             camera_properties = read_next_bytes(
                 fid, num_bytes=24, format_char_sequence="iiQQ")
             camera_id = camera_properties[0]
-            print(type(camera_id))
             model_id = camera_properties[1]
             model_name = CAMERA_MODEL_IDS[camera_properties[1]].model_name
             width = camera_properties[2]
@@ -127,11 +126,12 @@ def read_cameras_binary(path_to_model_file):
             num_params = CAMERA_MODEL_IDS[model_id].num_params
             params = read_next_bytes(fid, num_bytes=8*num_params,
                                      format_char_sequence="d"*num_params)
-            cameras[camera_id] = Camera(id=camera_id,
-                                        model=model_name,
-                                        width=width,
-                                        height=height,
-                                        params=np.array(params))
+            if camera_id in selected_cams:
+            	cameras[camera_id] = Camera(id=camera_id,
+                                        	model=model_name,
+                                        	width=width,
+                                        	height=height,
+                                        	params=np.array(params))
         assert len(cameras) == num_cameras
     return cameras
 
