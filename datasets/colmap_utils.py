@@ -259,6 +259,7 @@ def read_points3d_binary(path_to_model_file):
             	if element not in selected_cameras:
             		image_ids_list.pop(index)
             print(image_ids_list)
+            print(image_ids)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
             if  point3D_id in selected_points:
             	points3D[point3D_id] = Point3D(
