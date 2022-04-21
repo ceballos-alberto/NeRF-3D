@@ -238,6 +238,7 @@ def read_points3d_binary(path_to_model_file):
         void Reconstruction::WritePoints3DBinary(const std::string& path)
     """
     points3D = {}
+    selected_points = [1,16,21,27,38,45,50,56,62,68,73,79]
     with open(path_to_model_file, "rb") as fid:
         num_points = read_next_bytes(fid, 8, "Q")[0]
         for point_line_index in range(num_points):
@@ -255,10 +256,11 @@ def read_points3d_binary(path_to_model_file):
                 format_char_sequence="ii"*track_length)
             image_ids = np.array(tuple(map(int, track_elems[0::2])))
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
-            points3D[point3D_id] = Point3D(
-                id=point3D_id, xyz=xyz, rgb=rgb,
-                error=error, image_ids=image_ids,
-                point2D_idxs=point2D_idxs)
+            if  point3D_id in selected_points:
+            	points3D[point3D_id] = Point3D(
+                	id=point3D_id, xyz=xyz, rgb=rgb,
+                	error=error, image_ids=image_ids,
+                	point2D_idxs=point2D_idxs)
     return points3D
 
 
