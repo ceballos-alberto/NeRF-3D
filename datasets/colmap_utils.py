@@ -255,6 +255,7 @@ def read_points3d_binary(path_to_model_file):
                 format_char_sequence="ii"*track_length)
             image_ids = np.array(tuple(map(int, track_elems[0::2])))
             print(image_ids)
+            print(type(image_ids))
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
             if  point3D_id in selected_points:
             	points3D[point3D_id] = Point3D(
