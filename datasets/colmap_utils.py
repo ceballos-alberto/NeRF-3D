@@ -256,7 +256,7 @@ def read_points3d_binary(path_to_model_file):
             image_ids_list = image_ids.tolist()
             for index, element in enumerate(image_ids_list):
             	if element not in selected_cameras:
-            		image_ids_list.pop(index)
+            		print(image_ids_list.pop(index))
             image_ids = np.array(image_ids_list)
             print(image_ids)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
