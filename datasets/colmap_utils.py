@@ -111,7 +111,7 @@ def read_cameras_binary(path_to_model_file):
         void Reconstruction::WriteCamerasBinary(const std::string& path)
         void Reconstruction::ReadCamerasBinary(const std::string& path)
     """
-    selected_cams = [1,2,3,4,5,6,7,8,9,10]
+    selected_cams = [1,16,21,27,38,45,50,56,62,68,73,79]
     cameras = {}
     with open(path_to_model_file, "rb") as fid:
         num_cameras = read_next_bytes(fid, 8, "Q")[0]
@@ -132,7 +132,6 @@ def read_cameras_binary(path_to_model_file):
                                         	width=width,
                                         	height=height,
                                         	params=np.array(params))
-        print( len(cameras))
     return cameras
 
 
@@ -180,6 +179,8 @@ def read_images_binary(path_to_model_file):
             binary_image_properties = read_next_bytes(
                 fid, num_bytes=64, format_char_sequence="idddddddi")
             image_id = binary_image_properties[0]
+            print(image_id)
+            print(type(image_id))
             qvec = np.array(binary_image_properties[1:5])
             tvec = np.array(binary_image_properties[5:8])
             camera_id = binary_image_properties[8]
