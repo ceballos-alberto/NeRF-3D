@@ -118,6 +118,7 @@ def read_cameras_binary(path_to_model_file):
             camera_properties = read_next_bytes(
                 fid, num_bytes=24, format_char_sequence="iiQQ")
             camera_id = camera_properties[0]
+            print(camera_id)
             model_id = camera_properties[1]
             model_name = CAMERA_MODEL_IDS[camera_properties[1]].model_name
             width = camera_properties[2]
