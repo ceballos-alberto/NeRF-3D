@@ -173,14 +173,13 @@ def read_images_binary(path_to_model_file):
         void Reconstruction::WriteImagesBinary(const std::string& path)
     """
     images = {}
+    selected_imgs = [1,16,21,27,38,45,50,56,62,68,73,79]
     with open(path_to_model_file, "rb") as fid:
         num_reg_images = read_next_bytes(fid, 8, "Q")[0]
         for image_index in range(num_reg_images):
             binary_image_properties = read_next_bytes(
                 fid, num_bytes=64, format_char_sequence="idddddddi")
             image_id = binary_image_properties[0]
-            print(image_id)
-            print(type(image_id))
             qvec = np.array(binary_image_properties[1:5])
             tvec = np.array(binary_image_properties[5:8])
             camera_id = binary_image_properties[8]
@@ -196,10 +195,12 @@ def read_images_binary(path_to_model_file):
             xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])),
                                    tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
-            images[image_id] = Image(
-                id=image_id, qvec=qvec, tvec=tvec,
-                camera_id=camera_id, name=image_name,
-                xys=xys, point3D_ids=point3D_ids)
+            if image_id in selected_imgs:
+            	images[image_id] = Image(
+                	id=image_id, qvec=qvec, tvec=tvec,
+                	camera_id=camera_id, name=image_name,
+                	xys=xys, point3D_ids=point3D_ids)
+    print(len(images))		
     return images
 
 
