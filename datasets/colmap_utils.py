@@ -257,7 +257,7 @@ def read_points3d_binary(path_to_model_file):
             print("list of points")
             print(selected_points)
             print("antes")
-            print(image_ids)
+            print(enumerate(image_ids_list))
             for index, element in enumerate(image_ids_list):
             	if element not in selected_points:
             		print(image_ids_list.pop(index))
