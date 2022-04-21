@@ -200,7 +200,6 @@ def read_images_binary(path_to_model_file):
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
                 	xys=xys, point3D_ids=point3D_ids)
-    print(len(images))		
     return images
 
 
@@ -258,11 +257,11 @@ def read_points3d_binary(path_to_model_file):
             for index, element in enumerate(image_ids_list):
             	if element not in selected_cameras:
             		image_ids_list.pop(index)
-            print(image_ids_list)
+            image_ids = np.array(image_ids_list)
             print(image_ids)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
-            if  point3D_id in selected_points:
-            	points3D[point3D_id] = Point3D(
+            
+            points3D[point3D_id] = Point3D(
                 	id=point3D_id, xyz=xyz, rgb=rgb,
                 	error=error, image_ids=image_ids,
                 	point2D_idxs=point2D_idxs)
