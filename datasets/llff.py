@@ -204,10 +204,9 @@ class LLFFDataset(Dataset):
         pts3d = read_points3d_binary(os.path.join(self.root_dir, 'sparse/0/points3D.bin'))
         pts_world = np.zeros((1, 3, len(pts3d))) # (1, 3, N_points)
         visibilities = np.zeros((len(poses), len(pts3d))) # (N_images, N_points)
-        print(len(poses))
         for i, k in enumerate(pts3d):
             pts_world[0, :, i] = pts3d[k].xyz
-            print(pts3d[k].image_ids)
+            print(len(pts3d[k].image_ids))
             for j in pts3d[k].image_ids:
                 visibilities[j-1, i] = 1
         # calculate each point's depth w.r.t. each camera
