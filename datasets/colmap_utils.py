@@ -262,7 +262,7 @@ def read_points3d_binary(path_to_model_file):
                     image_ids_list.pop(index)
                 index += 1
             image_ids = np.array(image_ids_list)
-            print(image_ids)
+            print(image_ids_list)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
 
             points3D[point3D_id] = Point3D(
