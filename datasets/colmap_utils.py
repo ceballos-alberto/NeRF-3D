@@ -78,6 +78,10 @@ def read_next_bytes(fid, num_bytes, format_char_sequence, endian_character="<"):
     data = fid.read(num_bytes)
     return struct.unpack(endian_character + format_char_sequence, data)
 
+def change_name(selected, real):
+    for index, element in enumerate(real):
+        real[index] = selected.index(element)
+    return real
 
 def read_cameras_text(path):
     """
@@ -228,7 +232,6 @@ def read_points3D_text(path):
                                                error=error, image_ids=image_ids,
                                                point2D_idxs=point2D_idxs)
     return points3D
-
 
 def read_points3d_binary(path_to_model_file):
     """
