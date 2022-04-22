@@ -254,18 +254,16 @@ def read_points3d_binary(path_to_model_file):
                 format_char_sequence="ii"*track_length)
             image_ids = np.array(tuple(map(int, track_elems[0::2])))
             image_ids_list = image_ids.tolist()
-            print("list of points")
-            print(selected_points)
-            print("antes")
-            print(enumerate(image_ids_list))
-            for index, element in enumerate(image_ids_list):
-            	if element not in selected_points:
-            		print(image_ids_list.pop(index))
+            index = 0
+            for element in image_ids_list:
+                if element in selected_points:
+                    print(element)
+                else:
+                    image_ids_list.pop(index)
+                index += 1
             image_ids = np.array(image_ids_list)
-            print("despues")
-            print(image_ids)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
-            
+
             points3D[point3D_id] = Point3D(
                 	id=point3D_id, xyz=xyz, rgb=rgb,
                 	error=error, image_ids=image_ids,
