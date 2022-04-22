@@ -253,6 +253,7 @@ def read_points3d_binary(path_to_model_file):
                 fid, num_bytes=8*track_length,
                 format_char_sequence="ii"*track_length)
             image_ids = np.array(tuple(map(int, track_elems[0::2])))
+            print(image_ids)
             image_ids_list = image_ids.tolist()
             for index, element in enumerate(image_ids_list):
                 if element not in selected_points:
