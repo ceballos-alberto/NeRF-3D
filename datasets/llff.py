@@ -208,6 +208,7 @@ class LLFFDataset(Dataset):
             pts_world[0, :, i] = pts3d[k].xyz
             print(len(pts3d[k].image_ids))
             for j in pts3d[k].image_ids:
+                print(j)
                 visibilities[j-1, i] = 1
         # calculate each point's depth w.r.t. each camera
         # it's the dot product of "points - camera center" and "camera frontal axis"
