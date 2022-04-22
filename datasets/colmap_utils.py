@@ -272,6 +272,7 @@ def read_points3d_binary(path_to_model_file):
             except ValueError:
                     pass
             point2D_idxs = np.array(point2D_idxs_list)
+            print(image_ids)
             if len(image_ids_list)>1:
                 points3D[point3D_id] = Point3D(
                 	   id=point3D_id, xyz=xyz, rgb=rgb,
