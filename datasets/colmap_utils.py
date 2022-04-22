@@ -238,9 +238,11 @@ def read_points3d_binary(path_to_model_file):
     """
     points3D = {}
     selected_points = [1,16,21,27,38,45,50,56,62,68,73,79]
+    prueba = 0
     with open(path_to_model_file, "rb") as fid:
         num_points = read_next_bytes(fid, 8, "Q")[0]
         for point_line_index in range(num_points):
+            prueba += 1
             binary_point_line_properties = read_next_bytes(
                 fid, num_bytes=43, format_char_sequence="QdddBBBd")
             point3D_id = binary_point_line_properties[0]
@@ -272,7 +274,8 @@ def read_points3d_binary(path_to_model_file):
             except ValueError:
                     pass
             point2D_idxs = np.array(point2D_idxs_list)
-            print(image_ids)
+            if prueba < 20:
+                print(image_ids)
             if len(image_ids_list)>1:
                 points3D[point3D_id] = Point3D(
                 	   id=point3D_id, xyz=xyz, rgb=rgb,
