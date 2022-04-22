@@ -277,7 +277,6 @@ def read_points3d_binary(path_to_model_file):
                 	   id=point3D_id, xyz=xyz, rgb=rgb,
                 	      error=error, image_ids=image_ids,
                 	         point2D_idxs=point2D_idxs)
-    print(len(points3D))
     return points3D
 
 
