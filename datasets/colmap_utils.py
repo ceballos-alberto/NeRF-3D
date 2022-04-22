@@ -261,14 +261,14 @@ def read_points3d_binary(path_to_model_file):
                 while True:
                     image_ids_list.remove(-1)
             except ValueError:
-                    print(image_ids_list)
+                    pass
             image_ids = np.array(image_ids_list)
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
-
-            points3D[point3D_id] = Point3D(
-                	id=point3D_id, xyz=xyz, rgb=rgb,
-                	error=error, image_ids=image_ids,
-                	point2D_idxs=point2D_idxs)
+            if len(image_ids_list>0):
+                points3D[point3D_id] = Point3D(
+                	   id=point3D_id, xyz=xyz, rgb=rgb,
+                	      error=error, image_ids=image_ids,
+                	         point2D_idxs=point2D_idxs)
     return points3D
 
 
