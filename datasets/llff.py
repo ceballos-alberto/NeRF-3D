@@ -176,9 +176,10 @@ class LLFFDataset(Dataset):
         self.white_back = False
 
     def read_meta(self):
-        imdata, camlist = read_images_binary(os.path.join(self.root_dir, 'sparse/0/images.bin'))
+        selected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+        imdata, camlist = read_images(os.path.join(self.root_dir, 'sparse/0/images.bin'), selected)
         # Step 1: rescale focal length according to training resolution
-        camdata = read_cameras_binary(os.path.join(self.root_dir, 'sparse/0/cameras.bin'), camlist)
+        camdata = read_cameras(os.path.join(self.root_dir, 'sparse/0/cameras.bin'), camlist)
         H = camdata[1].height
         W = camdata[1].width
         self.focal = camdata[1].params[0] * self.img_wh[0]/W
@@ -202,7 +203,7 @@ class LLFFDataset(Dataset):
 
         # read bounds
         self.bounds = np.zeros((len(poses), 2)) # (N_images, 2)
-        pts3d = read_points3d_binary(os.path.join(self.root_dir, 'sparse/0/points3D.bin'))
+        pts3d = read_points(os.path.join(self.root_dir, 'sparse/0/points3D.bin'), selected)
         pts_world = np.zeros((1, 3, len(pts3d))) # (1, 3, N_points)
         visibilities = np.zeros((len(poses), len(pts3d))) # (N_images, N_points)
         for i, k in enumerate(pts3d):

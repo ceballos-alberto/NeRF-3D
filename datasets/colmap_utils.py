@@ -78,73 +78,101 @@ def read_cameras(path, selected):
 
                 # Change the camera ID #
                 camera_id = selected.index(camera_id)
-                print(camera_id)
+
                 # Save data in the dictionary #
                 cameras[camera_id] = Camera(id=camera_id, model=model_name,
                 width=width, height=height, params=np.array(params))
 
     return cameras
 
-def read_images_binary (path_to_model_file):
+""" ----------------------------------------------------------------------------
+    Function name : Read Images.
+    Description : Save information of the images in a dictionary.
+---------------------------------------------------------------------------- """
 
+def read_images(path, selected):
+
+    # Dictionary to store the images #
     images = {}
-    selected_imgs = [1,16,21,27,38,45,50,56,62,68,73,79]
-    camera_id_list = []
+
+    # List to store the used cameras #
+    camera_list = []
+
+    # Index for naming the used cameras #
     index = 0
 
-    with open(path_to_model_file, "rb") as fid:
-        num_reg_images = read_next_bytes(fid, 8, "Q")[0]
+    # Open the file #
+    with open(path, "rb") as file:
+
+        # Number of images in the file #
+        num_reg_images = read_next_bytes(file, 8, "Q")[0]
+
+        # Read image by image #
         for image_index in range(num_reg_images):
-            binary_image_properties = read_next_bytes(fid, num_bytes=64, format_char_sequence="idddddddi")
+
+            binary_image_properties = read_next_bytes(file, 64, "idddddddi")
             image_id = binary_image_properties[0]
             qvec = np.array(binary_image_properties[1:5])
             tvec = np.array(binary_image_properties[5:8])
             camera_id = binary_image_properties[8]
             image_name = ""
-            current_char = read_next_bytes(fid, 1, "c")[0]
-            while current_char != b"\x00":   # look for the ASCII 0 entry
+            current_char = read_next_bytes(file, 1, "c")[0]
+            while current_char != b"\x00":
                 image_name += current_char.decode("utf-8")
-                current_char = read_next_bytes(fid, 1, "c")[0]
-            num_points2D = read_next_bytes(fid, num_bytes=8, format_char_sequence="Q")[0]
-            x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D, format_char_sequence="ddq"*num_points2D)
-            xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])), tuple(map(float, x_y_id_s[1::3]))])
+                current_char = read_next_bytes(file, 1, "c")[0]
+            num_points2D = read_next_bytes(file, 8, "Q")[0]
+            x_y_id_s = read_next_bytes(file, 24*num_points2D, "ddq"*num_points2D)
+            xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])),
+            tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
-            if image_id in selected_imgs:
-                camera_id_list.append(camera_id)
-                image_id = selected_imgs.index(image_id)
+
+            # Save info only when the camera is used #
+            if image_id in selected:
+
+                # List of used cameras #
+                camera_list.append(camera_id)
+
+                # Change the camera and image IDs #
+                image_id = selected.index(image_id)
                 camera_id = index
                 index +=1
-                images[image_id] = Image(
-                	id=image_id, qvec=qvec, tvec=tvec,
-                	camera_id=camera_id, name=image_name,
-                	xys=xys, point3D_ids=point3D_ids)
 
-    return images, camera_id_list
+                # Save data in the dictionary #
+                images[image_id] = Image(id=image_id, qvec=qvec, tvec=tvec,
+                camera_id=camera_id, name=image_name, xys=xys, point3D_ids=point3D_ids)
 
-def read_points3d_binary(path_to_model_file):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::ReadPoints3DBinary(const std::string& path)
-        void Reconstruction::WritePoints3DBinary(const std::string& path)
-    """
+    return images, camera_list
+
+""" ----------------------------------------------------------------------------
+    Function name : Read Points.
+    Description : Save information of the 3D points in a dictionary.
+---------------------------------------------------------------------------- """
+
+def read_points(path, selected):
+
+    # Dictionary to store the 3D points #
     points3D = {}
-    selected_points = [1,16,21,27,38,45,50,56,62,68,73,79]
-    with open(path_to_model_file, "rb") as fid:
-        num_points = read_next_bytes(fid, 8, "Q")[0]
-        for point_line_index in range(num_points):
-            binary_point_line_properties = read_next_bytes(
-                fid, num_bytes=43, format_char_sequence="QdddBBBd")
+
+    # Open the file #
+    with open(path, "rb") as file:
+
+        # Number of points in the file #
+        num_points = read_next_bytes(file, 8, "Q")[0]
+
+        # Read point by point #
+        for line in range(num_points):
+
+            binary_point_line_properties = read_next_bytes(file, 43, "QdddBBBd")
             point3D_id = binary_point_line_properties[0]
             xyz = np.array(binary_point_line_properties[1:4])
             rgb = np.array(binary_point_line_properties[4:7])
             error = np.array(binary_point_line_properties[7])
-            track_length = read_next_bytes(
-                fid, num_bytes=8, format_char_sequence="Q")[0]
-            track_elems = read_next_bytes(
-                fid, num_bytes=8*track_length,
-                format_char_sequence="ii"*track_length)
+            track_length = read_next_bytes(file, 8, "Q")[0]
+            track_elems = read_next_bytes(file, 8*track_length, "ii"*track_length)
             image_ids = np.array(tuple(map(int, track_elems[0::2])))
             point2D_idxs = np.array(tuple(map(int, track_elems[1::2])))
+
+            # Transform image and point IDs #
             image_ids_list = image_ids.tolist()
             point2D_idxs_list = point2D_idxs.tolist()
             for index, element in enumerate(image_ids_list):
@@ -164,25 +192,13 @@ def read_points3d_binary(path_to_model_file):
             image_ids_list = change_name(selected_points, image_ids_list)
             image_ids = np.array(image_ids_list)
             point2D_idxs = np.array(point2D_idxs_list)
+
+            # Save info only when the 3D point is used #
             if len(image_ids_list)>0:
-                points3D[point3D_id] = Point3D(
-                	   id=point3D_id, xyz=xyz, rgb=rgb,
-                	      error=error, image_ids=image_ids,
-                	         point2D_idxs=point2D_idxs)
+                points3D[point3D_id] = Point3D(id=point3D_id, xyz=xyz, rgb=rgb,
+                error=error, image_ids=image_ids, point2D_idxs=point2D_idxs)
+
     return points3D
-
-
-def read_model(path, ext):
-    if ext == ".txt":
-        cameras = read_cameras_text(os.path.join(path, "cameras" + ext))
-        images = read_images_text(os.path.join(path, "images" + ext))
-        points3D = read_points3D_text(os.path.join(path, "points3D") + ext)
-    else:
-        cameras = read_cameras_binary(os.path.join(path, "cameras" + ext))
-        images = read_images_binary(os.path.join(path, "images" + ext))
-        points3D = read_points3d_binary(os.path.join(path, "points3D") + ext)
-    return cameras, images, points3D
-
 
 def qvec2rotmat(qvec):
     return np.array([
@@ -195,17 +211,3 @@ def qvec2rotmat(qvec):
         [2 * qvec[3] * qvec[1] - 2 * qvec[0] * qvec[2],
          2 * qvec[2] * qvec[3] + 2 * qvec[0] * qvec[1],
          1 - 2 * qvec[1]**2 - 2 * qvec[2]**2]])
-
-
-def rotmat2qvec(R):
-    Rxx, Ryx, Rzx, Rxy, Ryy, Rzy, Rxz, Ryz, Rzz = R.flat
-    K = np.array([
-        [Rxx - Ryy - Rzz, 0, 0, 0],
-        [Ryx + Rxy, Ryy - Rxx - Rzz, 0, 0],
-        [Rzx + Rxz, Rzy + Ryz, Rzz - Rxx - Ryy, 0],
-        [Ryz - Rzy, Rzx - Rxz, Rxy - Ryx, Rxx + Ryy + Rzz]]) / 3.0
-    eigvals, eigvecs = np.linalg.eigh(K)
-    qvec = eigvecs[[3, 0, 1, 2], np.argmax(eigvals)]
-    if qvec[0] < 0:
-        qvec *= -1
-    return qvec
