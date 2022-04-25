@@ -132,40 +132,13 @@ def read_images_binary (path_to_model_file):
             if image_id in selected_imgs:
                 #print(point3D_ids)
                 print(image_id)
-                image_id = selected_imgs.index(image_id)
+                #image_id = selected_imgs.index(image_id)
                 #camera_id = selected_imgs.index(camera_id)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
                 	xys=xys, point3D_ids=point3D_ids)
     return images
-
-
-def read_points3D_text(path):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::ReadPoints3DText(const std::string& path)
-        void Reconstruction::WritePoints3DText(const std::string& path)
-    """
-    points3D = {}
-    with open(path, "r") as fid:
-        while True:
-            line = fid.readline()
-            if not line:
-                break
-            line = line.strip()
-            if len(line) > 0 and line[0] != "#":
-                elems = line.split()
-                point3D_id = int(elems[0])
-                xyz = np.array(tuple(map(float, elems[1:4])))
-                rgb = np.array(tuple(map(int, elems[4:7])))
-                error = float(elems[7])
-                image_ids = np.array(tuple(map(int, elems[8::2])))
-                point2D_idxs = np.array(tuple(map(int, elems[9::2])))
-                points3D[point3D_id] = Point3D(id=point3D_id, xyz=xyz, rgb=rgb,
-                                               error=error, image_ids=image_ids,
-                                               point2D_idxs=point2D_idxs)
-    return points3D
 
 def read_points3d_binary(path_to_model_file):
     """
