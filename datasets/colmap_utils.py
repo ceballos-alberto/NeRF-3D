@@ -131,7 +131,7 @@ def read_images_binary (path_to_model_file):
 
             if image_id in selected_imgs:
                 #print(point3D_ids)
-                print(camera_id)
+                print(image_id)
                 image_id = selected_imgs.index(image_id)
                 #camera_id = selected_imgs.index(camera_id)
                 images[image_id] = Image(
