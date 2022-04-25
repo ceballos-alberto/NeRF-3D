@@ -83,107 +83,39 @@ def change_name(selected, real):
         real[index] = selected.index(element)
     return real
 
-def read_cameras_text(path):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::WriteCamerasText(const std::string& path)
-        void Reconstruction::ReadCamerasText(const std::string& path)
-    """
-    cameras = {}
-    with open(path, "r") as fid:
-        while True:
-            line = fid.readline()
-            if not line:
-                break
-            line = line.strip()
-            if len(line) > 0 and line[0] != "#":
-                elems = line.split()
-                camera_id = int(elems[0])
-                model = elems[1]
-                width = int(elems[2])
-                height = int(elems[3])
-                params = np.array(tuple(map(float, elems[4:])))
-                cameras[camera_id] = Camera(id=camera_id, model=model,
-                                            width=width, height=height,
-                                            params=params)
-    return cameras
+def read_cameras_binary (path_to_model_file):
 
-
-def read_cameras_binary(path_to_model_file):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::WriteCamerasBinary(const std::string& path)
-        void Reconstruction::ReadCamerasBinary(const std::string& path)
-    """
     selected_cams = [1,16,21,27,38,45,50,56,62,68,73,79]
     cameras = {}
+
     with open(path_to_model_file, "rb") as fid:
         num_cameras = read_next_bytes(fid, 8, "Q")[0]
         for camera_line_index in range(num_cameras):
-            camera_properties = read_next_bytes(
-                fid, num_bytes=24, format_char_sequence="iiQQ")
+            camera_properties = read_next_bytes(fid, num_bytes=24, format_char_sequence="iiQQ")
             camera_id = camera_properties[0]
             model_id = camera_properties[1]
             model_name = CAMERA_MODEL_IDS[camera_properties[1]].model_name
             width = camera_properties[2]
             height = camera_properties[3]
             num_params = CAMERA_MODEL_IDS[model_id].num_params
-            print(model_name)
-            params = read_next_bytes(fid, num_bytes=8*num_params,
-                                     format_char_sequence="d"*num_params)
+            params = read_next_bytes(fid, num_bytes=8*num_params, format_char_sequence="d"*num_params)
             if camera_id in selected_cams:
-            	cameras[camera_id] = Camera(id=camera_id,
-                                        	model=model_name,
-                                        	width=width,
-                                        	height=height,
-                                        	params=np.array(params))
+                camera_id = selected_cams.index(camera_id)
+            	cameras[camera_id] = Camera(id=camera_id, model=model_name, width=width,
+                height=height, params=np.array(params))
+
     return cameras
 
 
-def read_images_text(path):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::ReadImagesText(const std::string& path)
-        void Reconstruction::WriteImagesText(const std::string& path)
-    """
-    images = {}
-    with open(path, "r") as fid:
-        while True:
-            line = fid.readline()
-            if not line:
-                break
-            line = line.strip()
-            if len(line) > 0 and line[0] != "#":
-                elems = line.split()
-                image_id = int(elems[0])
-                qvec = np.array(tuple(map(float, elems[1:5])))
-                tvec = np.array(tuple(map(float, elems[5:8])))
-                camera_id = int(elems[8])
-                image_name = elems[9]
-                elems = fid.readline().split()
-                xys = np.column_stack([tuple(map(float, elems[0::3])),
-                                       tuple(map(float, elems[1::3]))])
-                point3D_ids = np.array(tuple(map(int, elems[2::3])))
-                images[image_id] = Image(
-                    id=image_id, qvec=qvec, tvec=tvec,
-                    camera_id=camera_id, name=image_name,
-                    xys=xys, point3D_ids=point3D_ids)
-    return images
+def read_images_binary (path_to_model_file):
 
-
-def read_images_binary(path_to_model_file):
-    """
-    see: src/base/reconstruction.cc
-        void Reconstruction::ReadImagesBinary(const std::string& path)
-        void Reconstruction::WriteImagesBinary(const std::string& path)
-    """
     images = {}
     selected_imgs = [1,16,21,27,38,45,50,56,62,68,73,79]
+
     with open(path_to_model_file, "rb") as fid:
         num_reg_images = read_next_bytes(fid, 8, "Q")[0]
         for image_index in range(num_reg_images):
-            binary_image_properties = read_next_bytes(
-                fid, num_bytes=64, format_char_sequence="idddddddi")
+            binary_image_properties = read_next_bytes(fid, num_bytes=64, format_char_sequence="idddddddi")
             image_id = binary_image_properties[0]
             qvec = np.array(binary_image_properties[1:5])
             tvec = np.array(binary_image_properties[5:8])
@@ -193,15 +125,14 @@ def read_images_binary(path_to_model_file):
             while current_char != b"\x00":   # look for the ASCII 0 entry
                 image_name += current_char.decode("utf-8")
                 current_char = read_next_bytes(fid, 1, "c")[0]
-            num_points2D = read_next_bytes(fid, num_bytes=8,
-                                           format_char_sequence="Q")[0]
-            x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D,
-                                       format_char_sequence="ddq"*num_points2D)
-            xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])),
-                                   tuple(map(float, x_y_id_s[1::3]))])
+            num_points2D = read_next_bytes(fid, num_bytes=8, format_char_sequence="Q")[0]
+            x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D, format_char_sequence="ddq"*num_points2D)
+            xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])), tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
+            print(point3D_ids)
             if image_id in selected_imgs:
                 image_id = selected_imgs.index(image_id)
+                camera_id = selected_imgs.index(camera_id)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
