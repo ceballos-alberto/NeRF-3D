@@ -83,9 +83,8 @@ def change_name(selected, real):
         real[index] = selected.index(element)
     return real
 
-def read_cameras_binary (path_to_model_file):
+def read_cameras_binary (path_to_model_file, selected_cams):
 
-    selected_cams = [1,16,21,27,38,45,50,56,62,68,73,79]
     cameras = {}
 
     with open(path_to_model_file, "rb") as fid:
@@ -105,11 +104,12 @@ def read_cameras_binary (path_to_model_file):
 
     return cameras
 
-
 def read_images_binary (path_to_model_file):
 
     images = {}
     selected_imgs = [1,16,21,27,38,45,50,56,62,68,73,79]
+    camera_id_list = []
+    index = 0
 
     with open(path_to_model_file, "rb") as fid:
         num_reg_images = read_next_bytes(fid, 8, "Q")[0]
@@ -128,18 +128,18 @@ def read_images_binary (path_to_model_file):
             x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D, format_char_sequence="ddq"*num_points2D)
             xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])), tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
-
             if image_id in selected_imgs:
-                #print(point3D_ids)
-                print("image ", image_id)
-                print("camera", camera_id)
-                #image_id = selected_imgs.index(image_id)
-                #camera_id = selected_imgs.index(camera_id)
+                camera_id_list.append(camera_id)
+                image_id = selected_imgs.index(image_id)
+                camera_id = index
+                index +=1
+                print(point3D_ids)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
                 	xys=xys, point3D_ids=point3D_ids)
-    return images
+
+    return images, camera_id_list
 
 def read_points3d_binary(path_to_model_file):
     """

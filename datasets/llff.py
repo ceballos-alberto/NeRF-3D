@@ -176,15 +176,16 @@ class LLFFDataset(Dataset):
         self.white_back = False
 
     def read_meta(self):
+        imdata, camlist = read_images_binary(os.path.join(self.root_dir, 'sparse/0/images.bin'))
         # Step 1: rescale focal length according to training resolution
-        camdata = read_cameras_binary(os.path.join(self.root_dir, 'sparse/0/cameras.bin'))
+        camdata = read_cameras_binary(os.path.join(self.root_dir, 'sparse/0/cameras.bin'), camlist)
         H = camdata[1].height
         W = camdata[1].width
         self.focal = camdata[1].params[0] * self.img_wh[0]/W
 
         # Step 2: correct poses
         # read extrinsics (of successfully reconstructed images)
-        imdata = read_images_binary(os.path.join(self.root_dir, 'sparse/0/images.bin'))
+
         perm = np.argsort([imdata[k].name for k in imdata])
         # read successfully reconstructed images and ignore others
         self.image_paths = [os.path.join(self.root_dir, 'images', name)
