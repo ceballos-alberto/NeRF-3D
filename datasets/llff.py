@@ -185,9 +185,9 @@ class LLFFDataset(Dataset):
                     61,62,63,64,65,66,67,68,69,70,
                     71,72,73,74,75,76,77,78,79,80]
 
-        imdata, camlist = read_images(os.path.join(self.root_dir, 'sparse/0/images.bin'), selected)
+        imdata, camlist = read_images(os.path.join(self.root_dir, 'sparse/0/images.bin'), selected, True)
         # Step 1: rescale focal length according to training resolution
-        camdata = read_cameras(os.path.join(self.root_dir, 'sparse/0/cameras.bin'), camlist)
+        camdata = read_cameras(os.path.join(self.root_dir, 'sparse/0/cameras.bin'), camlist, True)
         H = camdata[1].height
         W = camdata[1].width
         self.focal = camdata[1].params[0] * self.img_wh[0]/W
