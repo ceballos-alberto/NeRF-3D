@@ -12,7 +12,7 @@ CameraModel = collections.namedtuple(
 Camera = collections.namedtuple("Camera", ["id", "origin", "model", "width",
 "height", "params"])
 
-Image = collections.namedtuple("Image", ["id", "origin", "origin_cam" "qvec",
+Image = collections.namedtuple("Image", ["id", "origin", "origin_cam", "qvec",
 "tvec", "camera_id", "name", "xys", "point3D_ids"])
 
 Point3D = collections.namedtuple(
