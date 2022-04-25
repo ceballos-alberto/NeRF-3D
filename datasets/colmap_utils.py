@@ -133,7 +133,7 @@ def read_images_binary (path_to_model_file):
                 image_id = selected_imgs.index(image_id)
                 camera_id = index
                 index +=1
-                print(point3D_ids)
+                print(image_name)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
