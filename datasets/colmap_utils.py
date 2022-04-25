@@ -1,34 +1,3 @@
-# Copyright (c) 2018, ETH Zurich and UNC Chapel Hill.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#
-#     * Neither the name of ETH Zurich and UNC Chapel Hill nor the names of
-#       its contributors may be used to endorse or promote products derived
-#       from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# Author: Johannes L. Schoenberger (jsch at inf.ethz.ch)
-
 import os
 import sys
 import collections
@@ -67,14 +36,7 @@ CAMERA_MODEL_IDS = dict([(camera_model.model_id, camera_model) \
                          for camera_model in CAMERA_MODELS])
 
 
-def read_next_bytes(fid, num_bytes, format_char_sequence, endian_character="<"):
-    """Read and unpack the next bytes from a binary file.
-    :param fid:
-    :param num_bytes: Sum of combination of {2, 4, 8}, e.g. 2, 6, 16, 30, etc.
-    :param format_char_sequence: List of {c, e, f, d, h, H, i, I, l, L, q, Q}.
-    :param endian_character: Any of {@, =, <, >, !}
-    :return: Tuple of read and unpacked values.
-    """
+def read_next_bytes (fid, num_bytes, format_char_sequence, endian_character="<"):
     data = fid.read(num_bytes)
     return struct.unpack(endian_character + format_char_sequence, data)
 
@@ -83,24 +45,43 @@ def change_name(selected, real):
         real[index] = selected.index(element)
     return real
 
-def read_cameras_binary (path_to_model_file, selected_cams):
+""" ----------------------------------------------------------------------------
+    Function name : Read Cameras.
+    Description : Save information of the cameras in a dictionary.
+---------------------------------------------------------------------------- """
 
+def read_cameras(path, selected):
+
+    # Dictionary to store the cameras #
     cameras = {}
 
-    with open(path_to_model_file, "rb") as fid:
-        num_cameras = read_next_bytes(fid, 8, "Q")[0]
-        for camera_line_index in range(num_cameras):
-            camera_properties = read_next_bytes(fid, num_bytes=24, format_char_sequence="iiQQ")
+    # Open the file #
+    with open(path, "rb") as file:
+
+        # Number of cameras in the file #
+        num_cameras = read_next_bytes(file, 8, "Q")[0]
+
+        # Read camera by camera #
+        for line in range(num_cameras):
+
+            camera_properties = read_next_bytes(file, 24, "iiQQ")
             camera_id = camera_properties[0]
             model_id = camera_properties[1]
-            model_name = CAMERA_MODEL_IDS[camera_properties[1]].model_name
             width = camera_properties[2]
             height = camera_properties[3]
+            model_name = CAMERA_MODEL_IDS[model_id].model_name
             num_params = CAMERA_MODEL_IDS[model_id].num_params
-            params = read_next_bytes(fid, num_bytes=8*num_params, format_char_sequence="d"*num_params)
-            if camera_id in selected_cams:
-                camera_id = selected_cams.index(camera_id)
-                cameras[camera_id] = Camera(id=camera_id, model=model_name, width=width, height=height, params=np.array(params))
+            params = read_next_bytes(file, 8*num_params, "d"*num_params)
+
+            # Save info only when the camera is used #
+            if camera_id in selected:
+
+                # Change the camera ID #
+                camera_id = selected.index(camera_id)
+                print(camera_id)
+                # Save data in the dictionary #
+                cameras[camera_id] = Camera(id=camera_id, model=model_name,
+                width=width, height=height, params=np.array(params))
 
     return cameras
 
@@ -130,11 +111,9 @@ def read_images_binary (path_to_model_file):
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
             if image_id in selected_imgs:
                 camera_id_list.append(camera_id)
-                print(camera_id)
                 image_id = selected_imgs.index(image_id)
                 camera_id = index
                 index +=1
-                print(image_name)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
