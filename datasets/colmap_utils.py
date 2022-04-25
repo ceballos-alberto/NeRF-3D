@@ -128,10 +128,12 @@ def read_images_binary (path_to_model_file):
             x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D, format_char_sequence="ddq"*num_points2D)
             xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])), tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
-            print(point3D_ids)
+
             if image_id in selected_imgs:
+                print(point3D_ids)
+                print(camera_id)
                 image_id = selected_imgs.index(image_id)
-                camera_id = selected_imgs.index(camera_id)
+                #camera_id = selected_imgs.index(camera_id)
                 images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
