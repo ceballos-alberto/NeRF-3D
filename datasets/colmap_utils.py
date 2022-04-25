@@ -4,11 +4,13 @@ import collections
 import numpy as np
 import struct
 
+# Data structures for cameras, images and 3D points #
 
 CameraModel = collections.namedtuple(
     "CameraModel", ["model_id", "model_name", "num_params"])
-Camera = collections.namedtuple(
-    "Camera", ["id", "model", "width", "height", "params"])
+
+Camera = collections.namedtuple("Camera", ["id", "origin", "model", "width", "height", "params"])
+
 BaseImage = collections.namedtuple(
     "Image", ["id", "qvec", "tvec", "camera_id", "name", "xys", "point3D_ids"])
 Point3D = collections.namedtuple(
@@ -48,15 +50,13 @@ def change_name(selected, real):
 """ ----------------------------------------------------------------------------
     Function name : Read Cameras.
     Description : Save information of the cameras in a dictionary.
+    Revised : Never
 ---------------------------------------------------------------------------- """
 
 def read_cameras(path, selected, info=False):
 
     # Dictionary to store the cameras #
     cameras = {}
-
-    # List to store the IDs of the cameras #
-    id_list = []
 
     # Open the file #
     with open(path, "rb") as file:
@@ -68,7 +68,7 @@ def read_cameras(path, selected, info=False):
         for line in range(num_cameras):
 
             camera_properties = read_next_bytes(file, 24, "iiQQ")
-            camera_id = camera_properties[0]
+            camera_id, origin = camera_properties[0]
             model_id = camera_properties[1]
             width = camera_properties[2]
             height = camera_properties[3]
@@ -79,13 +79,12 @@ def read_cameras(path, selected, info=False):
             # Save info only when the camera is used #
             if camera_id in selected:
 
-                # Change the camera ID qnd sqve info #
+                # Change the camera ID and save info #
                 camera_id = selected.index(camera_id)
-                id_list.append(camera_id)
 
                 # Save data in the dictionary #
-                cameras[camera_id] = Camera(id=camera_id, model=model_name,
-                width=width, height=height, params=np.array(params))
+                cameras[camera_id] = Camera(id=camera_id, origin=origin,
+                model=model_name, width=width, height=height, params=np.array(params))
 
     # Display information #
     if (info==True):
@@ -95,9 +94,15 @@ def read_cameras(path, selected, info=False):
         print("===============================================================")
         print(" ")
         print(" - Number of cameras >> {}".format(len(cameras)))
-        print(" - Original IDs >> {}".format(selected))
-        print(" - New IDs >> {}".format(id_list))
         print(" ")
+        for cam in cameras.values():
+            print("========== Camera ID >> {}".format(cam.id))
+            print(" - Original Camera ID >> {}".format(cam.origin))
+            print(" - Model >> {}".format(cam.model))
+            print(" - Width >> {}".format(cam.width))
+            print(" - Height >> {}".format(cam.height))
+            print(" - parameters >> {}".format(cam.params))
+            print(" ")
 
     # Return data #
     return cameras
