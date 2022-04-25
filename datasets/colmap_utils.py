@@ -50,10 +50,13 @@ def change_name(selected, real):
     Description : Save information of the cameras in a dictionary.
 ---------------------------------------------------------------------------- """
 
-def read_cameras(path, selected):
+def read_cameras(path, selected, info=False):
 
     # Dictionary to store the cameras #
     cameras = {}
+
+    # List to store the IDs of the cameras #
+    id_list = []
 
     # Open the file #
     with open(path, "rb") as file:
@@ -76,13 +79,27 @@ def read_cameras(path, selected):
             # Save info only when the camera is used #
             if camera_id in selected:
 
-                # Change the camera ID #
+                # Change the camera ID qnd sqve info #
                 camera_id = selected.index(camera_id)
+                id_list.append(camera_id)
 
                 # Save data in the dictionary #
                 cameras[camera_id] = Camera(id=camera_id, model=model_name,
                 width=width, height=height, params=np.array(params))
 
+    # Display information #
+    if (info==True):
+        print(" ")
+        print("===============================================================")
+        print("     Information about the cameras")
+        print("===============================================================")
+        print(" ")
+        print(" - Number of cameras >> {}".format(len(cameras)))
+        print(" - Original IDs >> {}".format(selected))
+        print(" - New IDs >> {}".format(id_list))
+        print(" ")
+
+    # Return data #
     return cameras
 
 """ ----------------------------------------------------------------------------
@@ -90,16 +107,14 @@ def read_cameras(path, selected):
     Description : Save information of the images in a dictionary.
 ---------------------------------------------------------------------------- """
 
-def read_images(path, selected):
+def read_images(path, selected, info=False):
 
     # Dictionary to store the images #
     images = {}
 
-    # List to store the used cameras #
+    # List to store information of cameras and images #
     camera_list = []
-
-    # Index for naming the used cameras #
-    index = 0
+    id_list = []
 
     # Open the file #
     with open(path, "rb") as file:
@@ -133,13 +148,30 @@ def read_images(path, selected):
                 camera_list.append(camera_id)
 
                 # Change the camera and image IDs #
+                id_list.append(image_id)
                 image_id = selected.index(image_id)
-                camera_id = index
-                index +=1
+                camera_id = camera_list.index(camera_id)
 
                 # Save data in the dictionary #
                 images[image_id] = Image(id=image_id, qvec=qvec, tvec=tvec,
                 camera_id=camera_id, name=image_name, xys=xys, point3D_ids=point3D_ids)
+
+    # Display information #
+    if (info==True):
+        print(" ")
+        print("===============================================================")
+        print("     Information about the images")
+        print("===============================================================")
+        print(" ")
+        print(" - Number of images >> {}".format(len(images)))
+        print(" - Original Image IDs >> {}".format(id_list))
+        print(" - Original Camera IDs >> {}".format(camera_list))
+        print(" ")
+        for img in images:
+            print("========== New Image ID >> {}".format(img.image_id))
+            print(" - Camera ID >> {}".format(img.camera_id))
+            print(" - Image name >> {}".format(img.image_name))
+            print(" ")
 
     return images, camera_list
 
