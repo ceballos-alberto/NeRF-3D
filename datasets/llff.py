@@ -8,7 +8,7 @@ from torchvision import transforms as T
 
 from .ray_utils import *
 from .colmap_utils import \
-    read_cameras_binary, read_images_binary, read_points3d_binary
+    read_cameras, read_images, read_points
 
 
 def normalize(v):
