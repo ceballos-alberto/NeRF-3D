@@ -9,16 +9,16 @@ import struct
 CameraModel = collections.namedtuple(
     "CameraModel", ["model_id", "model_name", "num_params"])
 
-Camera = collections.namedtuple("Camera", ["id", "origin", "model", "width", "height", "params"])
+Camera = collections.namedtuple("Camera", ["id", "origin", "model", "width",
+"height", "params"])
 
-BaseImage = collections.namedtuple(
-    "Image", ["id", "qvec", "tvec", "camera_id", "name", "xys", "point3D_ids"])
+Image = collections.namedtuple("Image", ["id", "origin", "origin_cam" "qvec",
+"tvec", "camera_id", "name", "xys", "point3D_ids"])
+
 Point3D = collections.namedtuple(
     "Point3D", ["id", "xyz", "rgb", "error", "image_ids", "point2D_idxs"])
 
-class Image(BaseImage):
-    def qvec2rotmat(self):
-        return qvec2rotmat(self.qvec)
+
 
 
 CAMERA_MODELS = {
@@ -50,7 +50,7 @@ def change_name(selected, real):
 """ ----------------------------------------------------------------------------
     Function name : Read Cameras.
     Description : Save information of the cameras in a dictionary.
-    Revised : Never
+    Revised : 25/04/22.
 ---------------------------------------------------------------------------- """
 
 def read_cameras(path, selected, info=False):
@@ -98,6 +98,7 @@ def read_cameras(path, selected, info=False):
         print(" ")
         for cam in cameras.values():
             print("========== Camera ID >> {}".format(cam.id))
+            print(" ")
             print(" - Original Camera ID >> {}".format(cam.origin))
             print(" - Model >> {}".format(cam.model))
             print(" - Width >> {}".format(cam.width))
@@ -111,6 +112,7 @@ def read_cameras(path, selected, info=False):
 """ ----------------------------------------------------------------------------
     Function name : Read Images.
     Description : Save information of the images in a dictionary.
+    Revised : 25/04/22.
 ---------------------------------------------------------------------------- """
 
 def read_images(path, selected, info=False):
@@ -118,9 +120,8 @@ def read_images(path, selected, info=False):
     # Dictionary to store the images #
     images = {}
 
-    # List to store information of cameras and images #
+    # List of used cameras #
     camera_list = []
-    id_list = []
 
     # Open the file #
     with open(path, "rb") as file:
@@ -133,9 +134,11 @@ def read_images(path, selected, info=False):
 
             binary_image_properties = read_next_bytes(file, 64, "idddddddi")
             image_id = binary_image_properties[0]
+            origin = image_id
             qvec = np.array(binary_image_properties[1:5])
             tvec = np.array(binary_image_properties[5:8])
             camera_id = binary_image_properties[8]
+            origin_cam = camera_id
             image_name = ""
             current_char = read_next_bytes(file, 1, "c")[0]
             while current_char != b"\x00":
@@ -150,17 +153,17 @@ def read_images(path, selected, info=False):
             # Save info only when the camera is used #
             if image_id in selected:
 
-                # List of used cameras #
+                # Add camera to the list of used cameras #
                 camera_list.append(camera_id)
 
                 # Change the camera and image IDs #
-                id_list.append(image_id)
                 image_id = selected.index(image_id)
                 camera_id = camera_list.index(camera_id)
 
                 # Save data in the dictionary #
-                images[image_id] = Image(id=image_id, qvec=qvec, tvec=tvec,
-                camera_id=camera_id, name=image_name, xys=xys, point3D_ids=point3D_ids)
+                images[image_id] = Image(id=image_id, origin=origin, origin_cam=origin_cam,
+                qvec=qvec, tvec=tvec, camera_id=camera_id, name=image_name,
+                xys=xys, point3D_ids=point3D_ids)
 
     # Display information #
     if (info==True):
@@ -170,15 +173,21 @@ def read_images(path, selected, info=False):
         print("===============================================================")
         print(" ")
         print(" - Number of images >> {}".format(len(images)))
-        print(" - Original Image IDs >> {}".format(id_list))
-        print(" - Original Camera IDs >> {}".format(camera_list))
         print(" ")
         for img in images.values():
-            print("========== New Image ID >> {}".format(img.id))
+            print("========== Image ID >> {}".format(img.id))
+            print(" ")
+            print(" - Original Image ID >> {}".format(img.origin))
             print(" - Camera ID >> {}".format(img.camera_id))
+            print(" - Original Camera ID >> {}".format(img.origin_cam))
             print(" - Image name >> {}".format(img.name))
+            print(" - Qvec >> {}".format(img.qvec))
+            print(" - Tvec >> {}".format(img.tvec))
+            print(" - xys >> {}".format(img.xys))
+            print(" - Points 3D >> {}".format(img.point3D_ids))
             print(" ")
 
+    # Return data #
     return images, camera_list
 
 """ ----------------------------------------------------------------------------
@@ -237,15 +246,3 @@ def read_points(path, selected):
                 error=error, image_ids=image_ids, point2D_idxs=point2D_idxs)
 
     return points3D
-
-def qvec2rotmat(qvec):
-    return np.array([
-        [1 - 2 * qvec[2]**2 - 2 * qvec[3]**2,
-         2 * qvec[1] * qvec[2] - 2 * qvec[0] * qvec[3],
-         2 * qvec[3] * qvec[1] + 2 * qvec[0] * qvec[2]],
-        [2 * qvec[1] * qvec[2] + 2 * qvec[0] * qvec[3],
-         1 - 2 * qvec[1]**2 - 2 * qvec[3]**2,
-         2 * qvec[2] * qvec[3] - 2 * qvec[0] * qvec[1]],
-        [2 * qvec[3] * qvec[1] - 2 * qvec[0] * qvec[2],
-         2 * qvec[2] * qvec[3] + 2 * qvec[0] * qvec[1],
-         1 - 2 * qvec[1]**2 - 2 * qvec[2]**2]])
