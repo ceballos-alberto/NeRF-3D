@@ -167,7 +167,7 @@ def read_images(path, selected, info=False):
         print(" - Original Image IDs >> {}".format(id_list))
         print(" - Original Camera IDs >> {}".format(camera_list))
         print(" ")
-        for img in images:
+        for img in images.values():
             print("========== New Image ID >> {}".format(img.image_id))
             print(" - Camera ID >> {}".format(img.camera_id))
             print(" - Image name >> {}".format(img.image_name))
