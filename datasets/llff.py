@@ -206,11 +206,9 @@ class LLFFDataset(Dataset):
         visibilities = np.zeros((len(poses), len(pts3d))) # (N_images, N_points)
         for i, k in enumerate(pts3d):
             pts_world[0, :, i] = pts3d[k].xyz
-            print(len(pts3d[k].image_ids))
             for j in pts3d[k].image_ids:
-                print(j)
                 visibilities[j-1, i] = 1
-        # We need to rename the points oh 
+        # We need to rename the points oh
         # calculate each point's depth w.r.t. each camera
         # it's the dot product of "points - camera center" and "camera frontal axis"
         depths = ((pts_world-poses[..., 3:4])*poses[..., 2:3]).sum(1) # (N_images, N_points)
