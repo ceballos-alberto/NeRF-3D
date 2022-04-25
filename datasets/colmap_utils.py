@@ -68,7 +68,8 @@ def read_cameras(path, selected, info=False):
         for line in range(num_cameras):
 
             camera_properties = read_next_bytes(file, 24, "iiQQ")
-            camera_id, origin = camera_properties[0]
+            camera_id = camera_properties[0]
+            origin = camera_id
             model_id = camera_properties[1]
             width = camera_properties[2]
             height = camera_properties[3]
