@@ -176,7 +176,7 @@ def read_points(path, selected):
             image_ids_list = image_ids.tolist()
             point2D_idxs_list = point2D_idxs.tolist()
             for index, element in enumerate(image_ids_list):
-                if element not in selected_points:
+                if element not in selected:
                     image_ids_list[index] = -1
                     point2D_idxs_list[index] = -1
             try:
