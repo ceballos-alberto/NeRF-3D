@@ -101,8 +101,7 @@ def read_cameras_binary (path_to_model_file):
             params = read_next_bytes(fid, num_bytes=8*num_params, format_char_sequence="d"*num_params)
             if camera_id in selected_cams:
                 camera_id = selected_cams.index(camera_id)
-            	cameras[camera_id] = Camera(id=camera_id, model=model_name, width=width,
-                height=height, params=np.array(params))
+            	cameras[camera_id] = Camera(id=camera_id, model=model_name, width=width, height=height, params=np.array(params))
 
     return cameras
 
