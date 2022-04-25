@@ -270,15 +270,15 @@ def read_points3d_binary(path_to_model_file):
                     image_ids_list.remove(-1)
             except ValueError:
                     pass
-            image_ids = np.array(image_ids_list)
             try:
                 while True:
                     point2D_idxs_list.remove(-1)
             except ValueError:
                     pass
+            image_ids_list = change_name(selected_points, image_ids_list)
+            image_ids = np.array(image_ids_list)
             point2D_idxs = np.array(point2D_idxs_list)
-            if prueba < 20:
-                print(image_ids)
+            print(image_ids_list)
             if len(image_ids_list)>1:
                 points3D[point3D_id] = Point3D(
                 	   id=point3D_id, xyz=xyz, rgb=rgb,
