@@ -6,20 +6,20 @@ import struct
 
 # Data structures for cameras, images and 3D points #
 
-CameraModel = collections.namedtuple(
-    "CameraModel", ["model_id", "model_name", "num_params"])
+CameraModel = collections.namedtuple("CameraModel", ["model_id", "model_name", "num_params"])
 
 Camera = collections.namedtuple("Camera", ["id", "origin", "model", "width",
 "height", "params"])
 
-Image = collections.namedtuple("Image", ["id", "origin", "origin_cam", "qvec",
+BaseImage = collections.namedtuple("Image", ["id", "origin", "origin_cam", "qvec",
 "tvec", "camera_id", "name", "xys", "point3D_ids"])
 
-Point3D = collections.namedtuple(
-    "Point3D", ["id", "xyz", "rgb", "error", "image_ids", "point2D_idxs"])
+Point3D = collections.namedtuple("Point3D", ["id", "origin", "xyz", "rgb",
+"error", "image_ids", "point2D_idxs"])
 
-
-
+class Image(BaseImage):
+    def qvec2rotmat(self):
+        return qvec2rotmat(self.qvec)
 
 CAMERA_MODELS = {
     CameraModel(model_id=0, model_name="SIMPLE_PINHOLE", num_params=3),
@@ -193,9 +193,10 @@ def read_images(path, selected, info=False):
 """ ----------------------------------------------------------------------------
     Function name : Read Points.
     Description : Save information of the 3D points in a dictionary.
+    Revised : 25/04/22. No
 ---------------------------------------------------------------------------- """
 
-def read_points(path, selected):
+def read_points(path, selected, info==True):
 
     # Dictionary to store the 3D points #
     points3D = {}
@@ -236,13 +237,46 @@ def read_points(path, selected):
                     point2D_idxs_list.remove(-1)
             except ValueError:
                     pass
+            origin = image_ids_list
             image_ids_list = change_name(selected, image_ids_list)
             image_ids = np.array(image_ids_list)
             point2D_idxs = np.array(point2D_idxs_list)
 
             # Save info only when the 3D point is used #
-            if len(image_ids_list)>0:
-                points3D[point3D_id] = Point3D(id=point3D_id, xyz=xyz, rgb=rgb,
-                error=error, image_ids=image_ids, point2D_idxs=point2D_idxs)
+            if len(image_ids_list)>1:
+                points3D[point3D_id] = Point3D(id=point3D_id, origin=origin,
+                xyz=xyz, rgb=rgb, error=error, image_ids=image_ids, point2D_idxs=point2D_idxs)
+
+    # Display information #
+    if (info==True):
+        print(" ")
+        print("===============================================================")
+        print("     Information about the 3D points")
+        print("===============================================================")
+        print(" ")
+        print(" - Number of points >> {}".format(len(points3D)))
+        print(" ")
+        for pt in points3D.values():
+            print("========== 3D Point ID >> {}".format(pt.id))
+            print(" ")
+            print(" - xyz >> {}".format(pt.xyz))
+            print(" - rgb >> {}".format(pt.rgb))
+            print(" - Error >> {}".format(pt.error))
+            print(" - Image IDs >> {}".format(pt.image_ids))
+            print(" - Original Image IDs >> {}".format(pt.origin))
+            print(" - 2D points  >> {}".format(pt.point2D_idxs))
+            print(" ")
 
     return points3D
+
+def qvec2rotmat(qvec):
+    return np.array([
+        [1 - 2 * qvec[2]**2 - 2 * qvec[3]**2,
+         2 * qvec[1] * qvec[2] - 2 * qvec[0] * qvec[3],
+         2 * qvec[3] * qvec[1] + 2 * qvec[0] * qvec[2]],
+        [2 * qvec[1] * qvec[2] + 2 * qvec[0] * qvec[3],
+         1 - 2 * qvec[1]**2 - 2 * qvec[3]**2,
+         2 * qvec[2] * qvec[3] - 2 * qvec[0] * qvec[1]],
+        [2 * qvec[3] * qvec[1] - 2 * qvec[0] * qvec[2],
+         2 * qvec[2] * qvec[3] + 2 * qvec[0] * qvec[1],
+         1 - 2 * qvec[1]**2 - 2 * qvec[2]**2]])
