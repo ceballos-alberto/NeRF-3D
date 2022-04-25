@@ -201,7 +201,7 @@ def read_images_binary(path_to_model_file):
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
             if image_id in selected_imgs:
                 image_id = selected_imgs.index(image_id)
-            	images[image_id] = Image(
+                images[image_id] = Image(
                 	id=image_id, qvec=qvec, tvec=tvec,
                 	camera_id=camera_id, name=image_name,
                 	xys=xys, point3D_ids=point3D_ids)
