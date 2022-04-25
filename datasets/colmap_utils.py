@@ -128,6 +128,7 @@ def read_cameras_binary(path_to_model_file):
             width = camera_properties[2]
             height = camera_properties[3]
             num_params = CAMERA_MODEL_IDS[model_id].num_params
+            print(model_name)
             params = read_next_bytes(fid, num_bytes=8*num_params,
                                      format_char_sequence="d"*num_params)
             if camera_id in selected_cams:
