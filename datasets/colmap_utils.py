@@ -44,7 +44,7 @@ def read_next_bytes (fid, num_bytes, format_char_sequence, endian_character="<")
 
 def change_name(selected, real):
     for index, element in enumerate(real):
-        real[index] = selected.index(element)
+        real[index] = selected.index(element) + 1
     return real
 
 """ ----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ def read_cameras(path, selected, info=False):
             if camera_id in selected:
 
                 # Change the camera ID and save info #
-                camera_id = selected.index(camera_id)
+                camera_id = selected.index(camera_id) + 1
 
                 # Save data in the dictionary #
                 cameras[camera_id] = Camera(id=camera_id, origin=origin,
@@ -157,8 +157,8 @@ def read_images(path, selected, info=False):
                 camera_list.append(camera_id)
 
                 # Change the camera and image IDs #
-                image_id = selected.index(image_id)
-                camera_id = camera_list.index(camera_id)
+                image_id = selected.index(image_id) + 1
+                camera_id = camera_list.index(camera_id) + 1
 
                 # Save data in the dictionary #
                 images[image_id] = Image(id=image_id, origin=origin, origin_cam=origin_cam,
