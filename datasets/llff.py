@@ -176,7 +176,7 @@ class LLFFDataset(Dataset):
         self.white_back = False
 
     def read_meta(self):
-        selected = [1,2,3,4,5,6]
+        selected = [10,20,30,40,50]
 
         imdata, camlist = read_images(os.path.join(self.root_dir, 'sparse/0/images.bin'), selected, True)
         # Step 1: rescale focal length according to training resolution
