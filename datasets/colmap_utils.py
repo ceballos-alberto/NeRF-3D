@@ -237,7 +237,7 @@ def read_points(path, selected, info=True):
                     point2D_idxs_list.remove(-1)
             except ValueError:
                     pass
-            origin = image_ids_list
+            origin = np.array(image_ids_list)
             image_ids_list = change_name(selected, image_ids_list)
             image_ids = np.array(image_ids_list)
             point2D_idxs = np.array(point2D_idxs_list)
