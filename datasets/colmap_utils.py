@@ -196,7 +196,7 @@ def read_images(path, selected, info=False):
     Revised : 25/04/22. No
 ---------------------------------------------------------------------------- """
 
-def read_points(path, selected, info==True):
+def read_points(path, selected, info=True):
 
     # Dictionary to store the 3D points #
     points3D = {}
