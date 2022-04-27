@@ -199,9 +199,7 @@ class LLFFDataset(Dataset):
                     71,72,73,74,75,76,77,78,79,80,
                     81,82,83]"""
 
-        selected = [2,7,10,14,17,18,21,23,27,30,
-                    33,38,42,45,49,51,54,56,59,60,
-                    64,68,69,70,73,74,75,77,80,83]
+        selected = [2,7,14,17,21,27,30,33,42,45,49,51,54,59,64,68,70,73,74,77]
 
         imdata, camlist = read_images(os.path.join(self.root_dir, 'sparse/0/images.bin'), selected, True)
         # Step 1: rescale focal length according to training resolution
